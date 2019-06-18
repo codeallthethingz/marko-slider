@@ -18,7 +18,6 @@ class {
     this.format = format({ round: 3 });
   }
   onInput(input) {
-    console.log(input)
     this.state.value1 = input.filterStats.min;
     this.state.value2 = input.filterStats.max;
     this.previousValue1 = input.filterStats.min;
@@ -140,8 +139,8 @@ class {
       <span on-click("handleRemove")>remove</span>
     </if>
   </div>
-  <div.value-box key="value1">${component.format(state.value1)}</div>
-  <div.value-box key="value2">${component.format(state.value2)}</div>
+  <div.value-box key="value1">${state.value1}</div>
+  <div.value-box key="value2">${state.value2}</div>
   <div.slider-point on-mousedown("handleMouseDown") key="slider1"/>
   <div.slider-point on-mousedown("handleMouseDown") key="slider2"/>
   <div.slider-line/>
