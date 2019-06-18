@@ -131,14 +131,14 @@ class {
   <br/>
   <div style="text-align:center">
     <if(state.showApply)>
-      <span.left-apply on-click("handleApply")>apply</span>
+      <span.slider-value2 on-click("handleApply")>apply</span>
     </if>
     <if(state.showRemove)>
       <span on-click("handleRemove")>remove</span>
     </if>
   </div>
-  <div.value-box key="value1">${component.format(state.value1)}</div>
-  <div.value-box key="value2">${component.format(state.value2)}</div>
+  <div.slider-value-box key="value1">${component.format(state.value1)}</div>
+  <div.slider value-box key="value2">${component.format(state.value2)}</div>
   <div.slider-point on-mousedown("handleMouseDown") key="slider1"/>
   <div.slider-point on-mousedown("handleMouseDown") key="slider2"/>
   <div.slider-line/>
@@ -166,7 +166,7 @@ style {
     position: absolute;
     z-index: 1000;
   }
-  .value-box {
+  .slider-value-box {
     border-radius: 2px;
     background-color: #009900;
     color: white;
@@ -180,7 +180,7 @@ style {
     padding-left: 0.3em;
     padding-right: 0.3em;
   }
-  .left-apply {
+  .slider-value2 {
     margin-right: 1em;
   }
 }
