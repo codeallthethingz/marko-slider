@@ -1,6 +1,6 @@
 {
   "name": "marko-slider",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Slider for Markojs v4",
   "main": "index.js",
   "scripts": {
