@@ -18,12 +18,12 @@ class {
     this.format = format({ round: 3 });
   }
   onInput(input) {
-    this.state.value1 = input.filterStats.min;
-    this.state.value2 = input.filterStats.max;
-    this.previousValue1 = input.filterStats.min;
-    this.previousValue2 = input.filterStats.max;
-    this.minValue = input.filterStats.min;
-    this.maxValue = input.filterStats.max;
+    this.state.value1 = parseFloat(input.filterStats.min);
+    this.state.value2 = parseFloat(input.filterStats.max);
+    this.previousValue1 = this.state.value1;
+    this.previousValue2 = this.state.value2;
+    this.minValue = this.state.value1;
+    this.maxValue = this.state.value2;
     if (this.getEl("slider1")) {
       this.sizeEverything(input.filterStats);
     }
@@ -43,9 +43,9 @@ class {
   }
   sizeEverything(filterStats) {
     var rect = this.getEl().getBoundingClientRect();
-    this.minValue = filterStats.min;
-    this.maxValue = filterStats.max;
-    this.valueWidth = filterStats.max - filterStats.min;
+    this.minValue = parseFloat(filterStats.min);
+    this.maxValue = parseFloat(filterStats.max);
+    this.valueWidth = this.maxValue - this.minValue;
     let borderBox = parseInt(window.getComputedStyle(this.getEl()).getPropertyValue("border-width"));
     this.circleDiameter = 2 * parseInt(window.getComputedStyle(this.getEl("slider1")).getPropertyValue("border-width")) + parseInt(window.getComputedStyle(this.getEl("slider1")).getPropertyValue("width"));
     this.width = rect.width - 2 * borderBox;
@@ -74,8 +74,6 @@ class {
     this.offsetX = parseInt(parseInt(e.clientX) - e.target.getBoundingClientRect().left);
     this.dragging = e.target;
     this.mouseDown = true;
-    this.previousValue1 = this.state.value1;
-    this.previousValue2 = this.state.value2;
   }
   handleMouseUp(e, component) {
     e.preventDefault();
@@ -83,7 +81,7 @@ class {
     component.mouseDown = false;
     if (component.previousValue1 !== component.state.value1 || component.previousValue2 !== component.state.value2) {
       component.state.showApply = true;
-    }
+    } 
   }
   handleMouseMove(e, component) {
     if (!component.mouseDown) {
@@ -104,10 +102,8 @@ class {
   convertXToValues(x, component) {
     let slider1Location = parseInt(component.getEl("slider1").style.left);
     let slider2Location = parseInt(component.getEl("slider2").style.left);
-    let slider1Pixel = slider1Location;
-    let slider2Pixel = slider2Location;
-    let value1 = (component.valueWidth / (component.width - this.circleDiameter)) * slider1Pixel + component.minValue;
-    let value2 = (component.valueWidth / (component.width - this.circleDiameter)) * slider2Pixel + component.minValue;
+    let value1 = (component.valueWidth / (component.width - this.circleDiameter)) * slider1Location + component.minValue;
+    let value2 = (component.valueWidth / (component.width - this.circleDiameter)) * slider2Location + component.minValue;
     if (value1 > value2) {
       let value3 = value1;
       value1 = value2;
@@ -120,6 +116,8 @@ class {
     this.emit("filter-obliterate", { isRange: true, filterName: this.input.filterName, filterValues: [this.state.value1, this.state.value2] });
     this.state.showApply = false;
     this.state.showRemove = true;
+    this.previousValue1 = this.state.value1;
+    this.previousValue2 = this.state.value2;
   }
   handleRemove() {
     this.emit("filter-obliterate", { filterName: this.input.filterName });
@@ -139,8 +137,8 @@ class {
       <span on-click("handleRemove")>remove</span>
     </if>
   </div>
-  <div.value-box key="value1">${state.value1}</div>
-  <div.value-box key="value2">${state.value2}</div>
+  <div.value-box key="value1">${component.format(state.value1)}</div>
+  <div.value-box key="value2">${component.format(state.value2)}</div>
   <div.slider-point on-mousedown("handleMouseDown") key="slider1"/>
   <div.slider-point on-mousedown("handleMouseDown") key="slider2"/>
   <div.slider-line/>
