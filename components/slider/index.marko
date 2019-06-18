@@ -1,0 +1,186 @@
+import format from 'format-number'
+
+class {
+  onCreate() {
+    this.state = {
+      value1: 0,
+      value2: 0,
+      showApply: false,
+      showRemove: false
+    };
+    this.mouseDown = false;
+    this.dragging = -1;
+    this.maxX = null;
+    this.width = null;
+    this.circleDiameter = null;
+    this.minValue = 0;
+    this.maxValue = 0;
+    this.format = format({ round: 3 });
+  }
+  onInput(input) {
+    this.state.value1 = parseFloat(input.filterStats.min);
+    this.state.value2 = parseFloat(input.filterStats.max);
+    this.previousValue1 = this.state.value1;
+    this.previousValue2 = this.state.value2;
+    this.minValue = this.state.value1;
+    this.maxValue = this.state.value2;
+    if (this.getEl("slider1")) {
+      this.sizeEverything(input.filterStats);
+    }
+  }
+  onUpdate() {
+    this.sizeValues();
+  }
+  onMount() {
+    this.sizeEverything(this.input.filterStats);
+    let component = this;
+    this.subscribeTo(window).on("mouseup", e => {
+      this.handleMouseUp(e, component);
+    });
+    this.subscribeTo(window).on("mousemove", e => {
+      this.handleMouseMove(e, component);
+    });
+  }
+  sizeEverything(filterStats) {
+    var rect = this.getEl().getBoundingClientRect();
+    this.minValue = parseFloat(filterStats.min);
+    this.maxValue = parseFloat(filterStats.max);
+    this.valueWidth = this.maxValue - this.minValue;
+    let borderBox = parseInt(window.getComputedStyle(this.getEl()).getPropertyValue("border-width"));
+    this.circleDiameter = 2 * parseInt(window.getComputedStyle(this.getEl("slider1")).getPropertyValue("border-width")) + parseInt(window.getComputedStyle(this.getEl("slider1")).getPropertyValue("width"));
+    this.width = rect.width - 2 * borderBox;
+
+    this.maxX = rect.width - this.circleDiameter - 2 * borderBox;
+    this.minX = 0;
+    this.getEl("slider1").style.bottom = 0 + "px";
+    this.getEl("slider1").style.left = this.minX + "px";
+    this.getEl("slider2").style.bottom = "0px";
+    this.getEl("slider2").style.left = this.maxX + "px";
+
+    this.sizeValues();
+  }
+  sizeValues() {
+    var rect = this.getEl().getBoundingClientRect();
+    var valueRect = this.getEl("value2").getBoundingClientRect();
+    var border = parseInt(window.getComputedStyle(this.getEl()).getPropertyValue("border-width"));
+    this.getEl("value2").style.bottom = this.circleDiameter + "px";
+    this.getEl("value2").style.left = rect.width - valueRect.width - border + "px";
+    var valueRect = this.getEl("value1").getBoundingClientRect();
+    this.getEl("value1").style.bottom = this.circleDiameter + "px";
+  }
+  handleMouseDown(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.offsetX = parseInt(parseInt(e.clientX) - e.target.getBoundingClientRect().left);
+    this.dragging = e.target;
+    this.mouseDown = true;
+  }
+  handleMouseUp(e, component) {
+    e.preventDefault();
+    e.stopPropagation();
+    component.mouseDown = false;
+    if (component.previousValue1 !== component.state.value1 || component.previousValue2 !== component.state.value2) {
+      component.state.showApply = true;
+    } 
+  }
+  handleMouseMove(e, component) {
+    if (!component.mouseDown) {
+      return;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+    let newX = parseInt(e.clientX) - component.offsetX - component.circleDiameter;
+    if (newX > component.maxX) {
+      newX = component.maxX;
+    }
+    if (newX < component.minX) {
+      newX = component.minX;
+    }
+    component.dragging.style.left = newX + "px";
+    component.convertXToValues(newX, component);
+  }
+  convertXToValues(x, component) {
+    let slider1Location = parseInt(component.getEl("slider1").style.left);
+    let slider2Location = parseInt(component.getEl("slider2").style.left);
+    let value1 = (component.valueWidth / (component.width - this.circleDiameter)) * slider1Location + component.minValue;
+    let value2 = (component.valueWidth / (component.width - this.circleDiameter)) * slider2Location + component.minValue;
+    if (value1 > value2) {
+      let value3 = value1;
+      value1 = value2;
+      value2 = value3;
+    }
+    component.state.value1 = value1;
+    component.state.value2 = value2;
+  }
+  handleApply() {
+    this.emit("filter-obliterate", { isRange: true, filterName: this.input.filterName, filterValues: [this.state.value1, this.state.value2] });
+    this.state.showApply = false;
+    this.state.showRemove = true;
+    this.previousValue1 = this.state.value1;
+    this.previousValue2 = this.state.value2;
+  }
+  handleRemove() {
+    this.emit("filter-obliterate", { filterName: this.input.filterName });
+    this.state.showApply = false;
+    this.state.showRemove = false;
+  }
+}
+
+<div.slider-box>
+  <b>${input.displayName}</b>
+  <br/>
+  <div style="text-align:center">
+    <if(state.showApply)>
+      <span.slider-value2 on-click("handleApply")>apply</span>
+    </if>
+    <if(state.showRemove)>
+      <span on-click("handleRemove")>remove</span>
+    </if>
+  </div>
+  <div.slider-value-box key="value1">${component.format(state.value1)}</div>
+  <div.slider value-box key="value2">${component.format(state.value2)}</div>
+  <div.slider-point on-mousedown("handleMouseDown") key="slider1"/>
+  <div.slider-point on-mousedown("handleMouseDown") key="slider2"/>
+  <div.slider-line/>
+</div>
+style {
+  .slider-line {
+    position: absolute;
+    bottom: 5px;
+    height: 2px;
+    background-color: blue;
+    width: 100%;
+  }
+  .slider-box {
+    border: 1px solid white;
+    position: relative;
+    height: 45px;
+  }
+  .slider-point {
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    border-radius: 6px;
+    border: 1px solid white;
+    background-color: red;
+    position: absolute;
+    z-index: 1000;
+  }
+  .slider-value-box {
+    border-radius: 2px;
+    background-color: #009900;
+    color: white;
+    font-weight: bold;
+    display: inline-block;
+    position: absolute;
+    z-index: 1000;
+    padding: 0.2em;
+    font-size: 0.8em;
+    margin-bottom: 0.5em;
+    padding-left: 0.3em;
+    padding-right: 0.3em;
+  }
+  .slider-value2 {
+    margin-right: 1em;
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "name": "marko-slider",
+  "version": "0.0.4",
+  "description": "Slider for Markojs v4",
+  "main": "index.js",
+  "scripts": {
+    "test": "xo && nyc marko test",
+    "coverage": "nyc --reporter=lcov --reporter=text-lcov marko test"
+  },
+  "author": "codeallthethingz <codeallthethingz@gmail.com>",
+  "maintainers": [
+    "codeallthethingz <codeallthethingz@gmail.com>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codeallthethingz/marko-slider.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/codeallthethingz/marko-slider/issues"
+  },
+  "homepage": "https://github.com/codeallthethingz/marko-slider#readme",
+  "keywords": [
+    "marko-taglib",
+    "marko",
+    "slider"
+  ],
+  "files": [
+    "components/**/*.marko",
+    "**/marko-tag.json",
+    "marko.json"
+  ],
+  "peerDependencies": {
+    "marko": "^4.18.1"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "marko-cli": "^7.0.1",
+    "nyc": "^14.1.1",
+    "xo": "^0.24.0"
+  },
+  "nyc": {
+    "extension": [
+      ".marko.js"
+    ],
+    "exclude": [
+      "**/test-**.js"
+    ]
+  },
+  "dependencies": {
+    "format-number": "^3.0.0"
+  },
+  "xo": {
+    "space": true,
+    "env": [
+      "node",
+      "mocha"
+    ],
+    "ignores": [
+      "**/*.marko.js"
+    ],
+    "rules": {
+      "max-lines": 0
+    }
+  }
+}
